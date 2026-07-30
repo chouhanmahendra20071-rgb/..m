@@ -672,11 +672,36 @@ document.querySelectorAll('a,button,.flip-card,.candle-holder,.seal-box').forEac
   el.addEventListener('mouseleave', ()=>cursorRing.classList.remove('grow'));
 });
 
+/* ---------------- Subtle gold burst fx ---------------- */
+const fx=document.getElementById('fx-canvas'), fctx=fx.getContext('2d');
+function resizeFx(){ fx.width=innerWidth; fx.height=innerHeight; }
+resizeFx(); addEventListener('resize', resizeFx);
+let particles=[];
+function burst(x,y){
+  for(let i=0;i<40;i++){
+    const ang=Math.random()*Math.PI*2, spd=Math.random()*3+1;
+    particles.push({x,y,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd-1.5,r:Math.random()*2.2+1,life:70,
+      c: Math.random()>0.5 ? '201,138,151' : '179,157,219'});
+  }
+}
+function animateFx(){
+  fctx.clearRect(0,0,fx.width,fx.height);
+  particles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.05; p.life--;
+    fctx.beginPath(); fctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    fctx.fillStyle=`rgba(${p.c},${Math.max(p.life/70,0)})`; fctx.fill();
+  });
+  particles=particles.filter(p=>p.life>0);
+  requestAnimationFrame(animateFx);
+}
+animateFx();
+
 /* ---------------- Countdown ---------------- */
 const target = new Date("2026-07-30T00:00:00");
 const daysEl=document.getElementById('cd-days'), hoursEl=document.getElementById('cd-hours'),
       minsEl=document.getElementById('cd-mins'), secsEl=document.getElementById('cd-secs'),
       countdownBox=document.getElementById('countdown'), doneBox=document.getElementById('countdown-done');
+let timer;
 function tick(){
   const diff=target-new Date();
   if(diff<=0){
@@ -692,7 +717,8 @@ function tick(){
   minsEl.textContent=String(Math.floor(diff/60000)%60).padStart(2,'0');
   secsEl.textContent=String(Math.floor(diff/1000)%60).padStart(2,'0');
 }
-tick(); const timer=setInterval(tick,1000);
+timer=setInterval(tick,1000);
+tick();
 
 /* ---------------- Scroll reveal ---------------- */
 const io=new IntersectionObserver((entries)=>{
@@ -719,30 +745,6 @@ function animateDust(){
   requestAnimationFrame(animateDust);
 }
 animateDust();
-
-/* ---------------- Subtle gold burst fx ---------------- */
-const fx=document.getElementById('fx-canvas'), fctx=fx.getContext('2d');
-function resizeFx(){ fx.width=innerWidth; fx.height=innerHeight; }
-resizeFx(); addEventListener('resize', resizeFx);
-let particles=[];
-function burst(x,y){
-  for(let i=0;i<40;i++){
-    const ang=Math.random()*Math.PI*2, spd=Math.random()*3+1;
-    particles.push({x,y,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd-1.5,r:Math.random()*2.2+1,life:70,
-      c: Math.random()>0.5 ? '201,138,151' : '179,157,219'});
-  }
-}
-function animateFx(){
-  fctx.clearRect(0,0,fx.width,fx.height);
-  particles.forEach(p=>{
-    p.x+=p.vx; p.y+=p.vy; p.vy+=0.05; p.life--;
-    fctx.beginPath(); fctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-    fctx.fillStyle=`rgba(${p.c},${Math.max(p.life/70,0)})`; fctx.fill();
-  });
-  particles=particles.filter(p=>p.life>0);
-  requestAnimationFrame(animateFx);
-}
-animateFx();
 
 /* ---------------- Finale gentle gold fall ---------------- */
 const finale=document.getElementById('finale');
